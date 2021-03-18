@@ -17,3 +17,8 @@ export type OauthTokenBody = {
   grant_type: string;
   redirect_uri: string;
 };
+
+export interface Auth0SimulatorOptions {
+  port: number;
+  appUrl: string;
+}

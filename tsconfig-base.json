@@ -1,6 +1,7 @@
 {
   "extends": "@frontside/tsconfig",
   "compilerOptions": {
+    "baseUrl": ".",
     "allowJs": false,
     "composite": true,
     "declaration": true,

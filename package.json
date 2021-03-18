@@ -25,7 +25,7 @@
     "lint": "eslint 'packages/**/*.{ts,tsx,js}' -c ./packages/component-library/.eslintrc.json --ignore-path ./.eslintignore --fix",
     "lint:js": "eslint --ext .js . -c ./packages/devtools/.eslintrc.json --ignore-path ./.eslintignore --fix",
     "quick-start": "yarn install && yarn workspace auth0-simulator run watch",
-    "watch": "yarn build:tsc && yarn tsc -b ./tsconfig.monorepo.json --watch"
+    "watch": "PORT=6000 yarn build:tsc && yarn tsc -b ./tsconfig.monorepo.json --watch"
   },
   "volta": {
     "node": "14.15.3",

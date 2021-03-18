@@ -1,11 +1,14 @@
-import type { SimulationsState } from '../types';
 import express, { json } from 'express';
-import { addRoutes } from '../simulators/auth0/auth0-routes';
-import { main } from '@effection/node';
 import fs from 'fs';
 import https, { ServerOptions } from 'https';
 import path from 'path';
 import cors from 'cors';
+import getPort from 'get-port';
+import { once, Operation, Task, Deferred } from 'effection';
+import { Auth0SimulatorOptions } from './types';
+import { AddressInfo } from 'net';
+import type { Server as HTTPServer } from 'https';
+// import helmet from 'helmet';
 
 const cwd = process.cwd();
 
@@ -14,36 +17,73 @@ const ssl: ServerOptions = {
   cert: fs.readFileSync(path.join(cwd, 'certs', 'localhost.pem')),
 };
 
-// import helmet from 'helmet';
+console.dir(ssl);
 
-const port = process.env.PORT || 3000;
+export interface Server {
+  address(): Operation<AddressInfo>;
+}
 
+type Runner = {
+  run(scope: Task): { address(): Promise<AddressInfo> };
+};
 
-main(function* () {
-  const app = express();
+export function createAuth0Simulator({ port, appUrl }: Auth0SimulatorOptions): Runner {
+  return {
+    run(scope: Task) {
+      const bound = Deferred<HTTPServer>();
+      const app = express();
 
-  app.use(
-    cors({
-      origin: 'http://localhost:5000',
-      credentials: true,
-    }),
-  );
+      app.use(
+        cors({
+          origin: appUrl,
+          credentials: true,
+        }),
+      );
 
-  const server = https.createServer(ssl, app);
+      scope.spawn(function* () {
+        const actualPort: number = yield getPort({ port });
 
-  // app.use(helmet());
+        const httpsServer = https.createServer(ssl, app);
 
-  app.use((_, res, next) => {
-    res.set('Pragma', 'no-cache');
-    res.set('Cache-Control', 'no-cache, no-store');
-    next();
-  });
+        app.use((_, res, next) => {
+          res.set('Pragma', 'no-cache');
+          res.set('Cache-Control', 'no-cache, no-store');
+          next();
+        });
 
-  app.use(json());
+        app.use(json());
 
-  addRoutes(atom)(app);
+        app.get('/', (req, res) => {
+          console.dir('hereee');
+          res.set('Content-Type', 'text/html');
+          return res.status(200).send(Buffer.from('<h1>bernie</h1>'));
+        });
 
-  server.listen({ port }, () => {
-    console.log(`🚀 Server ready at https://localhost:${port}/graphql`);
-  });
-});
+        const server = httpsServer.listen(actualPort);
+
+        scope.spawn(function* () {
+          const error: Error = yield once(httpsServer, 'error');
+          console.dir({ error });
+          throw error;
+        });
+
+        try {
+          yield once(server, 'listening');
+          bound.resolve(server);
+
+          yield;
+        } finally {
+          console.log('herema77');
+          httpsServer.close();
+        }
+      });
+
+      return {
+        async address() {
+          const server = await bound.promise;
+          return (server.address() as unknown) as AddressInfo;
+        },
+      };
+    },
+  };
+}

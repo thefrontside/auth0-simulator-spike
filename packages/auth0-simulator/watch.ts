@@ -1,38 +1,28 @@
-import type { Operation } from 'effection';
+import { Operation, Task } from 'effection';
 import type { Process } from '@effection/node';
 import { main, exec, daemon, StdIO } from '@effection/node';
-import { subscribe, Subscription } from '@effection/subscription';
-import type { Channel } from '@effection/channel';
-import { spawn, timeout } from 'effection';
-import { on } from '@effection/events';
+import { sleep } from 'effection';
+import type { Channel } from 'effection';
+import { on } from 'effection';
 import { watch } from 'chokidar';
-import { Context } from 'vm';
 
-main(function* () {
-  const watcher = watch('./src/**/*.ts', { ignoreInitial: true });
+main(function* (scope: Task) {
+  const watcher = watch('./src/**/*.ts', { ignoreInitial: true, ignored: 'dist' });
   try {
-    let process: Context = yield spawn(buildAndRun(500));
+    let process: Task = scope.spawn(buildAndRun(500));
 
-    const events: Subscription<[string]> = yield on(watcher, 'all');
-
-    while (true) {
-      const next: IteratorResult<[string]> = yield events.next();
-
-      if (next.done) {
-        break;
-      } else {
-        console.log('buidling.....');
-        process.halt();
-        process = yield spawn(buildAndRun(100));
-      }
-    }
+    yield on(watcher, 'all').forEach(function () {
+      console.log('buidling.....');
+      process.halt();
+      process = scope.spawn(buildAndRun(500));
+    });
   } finally {
     watcher.close();
   }
 });
 
 function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
-  return subscribe(channel).forEach(function (data) {
+  return channel.forEach(function (data) {
     return new Promise((resolve, reject) => {
       out.write(data, (err) => {
         if (err) {
@@ -45,24 +35,27 @@ function writeOut(channel: Channel<string>, out: NodeJS.WriteStream) {
   });
 }
 
-function* executeAndOut(command: string): Operation<Context> {
-  const p: Process = yield exec(`yarn ${command}`);
-  yield spawn(writeOut(p.stdout, process.stdout));
-  yield spawn(writeOut(p.stderr, process.stderr));
-  yield p.expect();
+function executeAndOut(command: string): Operation<void> {
+  return function* (task) {
+    const p: Process = exec(task, `yarn run ${command}`);
+    task.spawn(writeOut(p.stdout, process.stdout));
+    task.spawn(writeOut(p.stderr, process.stderr));
+    yield p.expect();
+  };
 }
 
-function* buildAndRun(delay = 0): Operation<Context> {
-  try {
-    yield executeAndOut('clean');
-    yield executeAndOut('generate');
-    yield timeout(delay);
-    const server: StdIO = yield daemon('node dist/server/server.js');
-    yield spawn(writeOut(server.stdout, process.stdout));
-    yield spawn(writeOut(server.stderr, process.stderr));
-  } catch (err) {
-    console.error(err);
-  }
+function buildAndRun(delay: number): Operation<void> {
+  return function* (scope) {
+    try {
+      yield executeAndOut('build');
+      yield sleep(delay);
+      const server: StdIO = daemon(scope, 'node dist/start.js');
+      scope.spawn(writeOut(server.stdout, process.stdout));
+      scope.spawn(writeOut(server.stderr, process.stderr));
+    } catch (err) {
+      console.error(err);
+    }
 
-  yield;
+    yield;
+  };
 }
