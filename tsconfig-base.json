@@ -1,0 +1,16 @@
+{
+  "extends": "@frontside/tsconfig",
+  "compilerOptions": {
+    "allowJs": false,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "auth0-simulator": ["packages/auth0-simulator/src"],
+      "example": ["packages/example/src"]
+    }
+  }
+}
