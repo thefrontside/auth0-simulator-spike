@@ -8,6 +8,9 @@ main(function* (scope) {
   const server = createAuth0Simulator({
     port: serverPort,
     appUrl: 'http://localhost:5000',
+    oauth: {
+      scope: 'openid profile email',
+    },
   }).run(scope);
 
   const { port }: AddressInfo = yield server.address();

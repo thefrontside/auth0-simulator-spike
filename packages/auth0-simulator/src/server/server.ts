@@ -8,6 +8,7 @@ import { once, Operation, Task, Deferred } from 'effection';
 import { Auth0SimulatorOptions } from './types';
 import { AddressInfo } from 'net';
 import type { Server as HTTPServer } from 'https';
+import { addRoutes } from './routes';
 // import helmet from 'helmet';
 
 const cwd = process.cwd();
@@ -17,8 +18,6 @@ const ssl: ServerOptions = {
   cert: fs.readFileSync(path.join(cwd, 'certs', 'localhost.pem')),
 };
 
-console.dir(ssl);
-
 export interface Server {
   address(): Operation<AddressInfo>;
 }
@@ -27,7 +26,7 @@ type Runner = {
   run(scope: Task): { address(): Promise<AddressInfo> };
 };
 
-export function createAuth0Simulator({ port, appUrl }: Auth0SimulatorOptions): Runner {
+export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOptions): Runner {
   return {
     run(scope: Task) {
       const bound = Deferred<HTTPServer>();
@@ -53,11 +52,7 @@ export function createAuth0Simulator({ port, appUrl }: Auth0SimulatorOptions): R
 
         app.use(json());
 
-        app.get('/', (req, res) => {
-          console.dir('hereee');
-          res.set('Content-Type', 'text/html');
-          return res.status(200).send(Buffer.from('<h1>bernie</h1>'));
-        });
+        addRoutes({ port, appUrl, oauth })(app);
 
         const server = httpsServer.listen(actualPort);
 
@@ -73,7 +68,6 @@ export function createAuth0Simulator({ port, appUrl }: Auth0SimulatorOptions): R
 
           yield;
         } finally {
-          console.log('herema77');
           httpsServer.close();
         }
       });

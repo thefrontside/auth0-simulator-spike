@@ -20,5 +20,10 @@ export type OauthTokenBody = {
 
 export interface Auth0SimulatorOptions {
   port: number;
+  protocol?: string;
+  domain?: string;
   appUrl: string;
+  oauth: {
+    scope: string;
+  };
 }
