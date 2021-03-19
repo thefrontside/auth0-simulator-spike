@@ -7,7 +7,7 @@ const serverPort = Number(process.env.PORT);
 main(function* (scope) {
   const server = createAuth0Simulator({
     port: serverPort,
-    appUrl: 'http://localhost:5000',
+    appUrl: 'http://localhost:3000',
     oauth: {
       scope: 'openid profile email',
     },

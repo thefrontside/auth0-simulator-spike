@@ -19,7 +19,7 @@ export const createAuth0Config = (config?: any): any =>{return {
   "auth0Tenant": "resideo",
   "clientConfigurationBaseUrl": "https://cdn.auth0.com/",
   "callbackOnLocationHash": false,
-  "callbackURL": "http://localhost:5000",
+  "callbackURL": "http://localhost:3000",
   "cdn": "https://cdn.auth0.com/",
   "clientID": "x27JIDVbRAVgDCnItaJjJBIwhk8hWtPC",
   "dict": {
@@ -58,8 +58,8 @@ export const createAuth0Config = (config?: any): any =>{return {
   "widgetUrl": "https://cdn.auth0.com/w2/auth0-widget-5.1.min.js",
   "isThirdPartyClient": false,
   "authorizationServer": {
-      "url": "http://localhost:5000",
-      "issuer": "http://localhost:5000/"
+      "url": "http://localhost:4400",
+      "issuer": "http://localhost:4400/"
   },
   "colors": {
       "page_background": "#ededed",

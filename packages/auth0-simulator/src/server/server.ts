@@ -69,8 +69,6 @@ export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOpti
 
         addAuth0Routes({ port, appUrl, oauth })(app);
 
-        // app.use(express.static(publicDir));
-
         app.get('/login', (_, res) => {
           const config = Buffer.from(JSON.stringify(createAuth0Config()), 'utf8').toString('base64');
 

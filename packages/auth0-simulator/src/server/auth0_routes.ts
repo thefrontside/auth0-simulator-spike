@@ -5,6 +5,7 @@ import { Auth0QueryParams, Auth0SimulatorOptions } from './types';
 import createJWKSMock from '../jwt/create-jwt-mocks';
 import { expiresAt } from '../utils/date';
 import { redirect } from './redirect';
+import { userNamePasswordForm } from './usernamepassword';
 
 // HACK: horrible spike code temp store.
 const nonceMap: Record<
@@ -64,17 +65,23 @@ export const addAuth0Routes = ({
       return res.status(200).send(Buffer.from(raw));
     }
 
-    return res.status(302).redirect(`${appUrl}/login?state=${state}&redirect_uri=${redirect_uri}`);
+    return res.status(302).redirect(`/login?state=${state}&redirect_uri=${redirect_uri}`);
   });
 
   app.get('/u/login', (_, res) => {
-    res.status(200).redirect(`${appUrl}/login`);
+    res.status(200).redirect(`/login`);
   });
 
-  app.post('/u/login', (req: Request, res: Response) => {
+  app.post('/usernamepassword/login', (req: Request, res: Response) => {
     const { code, state } = req.query as { code: string; state: string };
-    return res.status(302).redirect(`${appUrl}?code=${code}&state=${state}`);
+
+    res.set('Content-Type', 'text/html');
+    return res.status(200).send(userNamePasswordForm());
   });
+
+  app.post('/login/callback', (_, res) => {
+    
+  })
 
   app.post('/co/authenticate', function (_, res) {
     return res.status(200).json({
