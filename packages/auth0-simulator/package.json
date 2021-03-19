@@ -47,6 +47,7 @@
   "dependencies": {
     "@bigtest/atom": "^0.12.0",
     "@effection/node": "=2.0.0-preview.5",
+    "@resideo/auth0-configuration": "1.0.0-85dff7a",
     "base64-url": "^2.3.3",
     "cors": "^2.8.5",
     "effection": "=2.0.0-preview.5",

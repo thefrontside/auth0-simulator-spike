@@ -15,7 +15,7 @@ main(function* (scope) {
 
   const { port }: AddressInfo = yield server.address();
 
-  console.log(`Simulation server running on https://localhost:${port}/`);
+  console.log(`auth0 simulation server running on https://localhost:${port}/`);
 
   yield;
 });

@@ -8,8 +8,9 @@ import { once, Operation, Task, Deferred } from 'effection';
 import { Auth0SimulatorOptions } from './types';
 import { AddressInfo } from 'net';
 import type { Server as HTTPServer } from 'https';
-import { addAuth0Routes } from './routes';
+import { addAuth0Routes } from './auth0_routes';
 import { assert } from 'assert-ts';
+import { createAuth0Config } from './configCreator';
 
 const cwd = process.cwd();
 
@@ -26,11 +27,17 @@ type Runner = {
   run(scope: Task): { address(): Promise<AddressInfo> };
 };
 
-const publicDir = path.join(cwd, 'build');
-assert(fs.existsSync(publicDir), `no static build at ${publicDir}`);
 
-const indexHTML = path.join(publicDir, 'index.html');
-assert(fs.existsSync(indexHTML), `no index.html at ${indexHTML}`);
+
+// const publicDir = path.resolve('@resideo/auth0-configuration/deploy/pages/login.html');
+// assert(fs.existsSync(publicDir), `no static build at ${publicDir}`);
+
+const indexHTML = path.resolve('../../node_modules/@resideo/auth0-configuration/deploy/pages/login.html');
+assert(fs.existsSync(indexHTML), `no login.html at ${indexHTML}`);
+
+const indexHtmlFile = fs.readFileSync(indexHTML, 'utf-8');
+
+const auth0Config = require(path.join(cwd, 'auth0.config.json'));
 
 export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOptions): Runner {
   return {
@@ -62,10 +69,16 @@ export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOpti
 
         addAuth0Routes({ port, appUrl, oauth })(app);
 
-        app.use(express.static(publicDir));
+        // app.use(express.static(publicDir));
 
         app.get('/login', (_, res) => {
-          res.sendFile(indexHTML);
+          const config = Buffer.from(JSON.stringify(createAuth0Config()), 'utf8').toString('base64');
+
+          const configuredHtml = indexHtmlFile.replace(/\@\@config\@\@/g, config);
+
+          res.set('Content-Type', 'text/html');
+          
+          res.status(200).send(Buffer.from(configuredHtml));
         });
 
         const server = httpsServer.listen(actualPort);
