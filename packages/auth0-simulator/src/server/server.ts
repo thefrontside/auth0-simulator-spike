@@ -1,4 +1,4 @@
-import express, { json } from 'express';
+import express, { json, urlencoded } from 'express';
 import fs from 'fs';
 import https, { ServerOptions } from 'https';
 import path from 'path';
@@ -27,19 +27,20 @@ type Runner = {
   run(scope: Task): { address(): Promise<AddressInfo> };
 };
 
-
-
-// const publicDir = path.resolve('@resideo/auth0-configuration/deploy/pages/login.html');
-// assert(fs.existsSync(publicDir), `no static build at ${publicDir}`);
-
 const indexHTML = path.resolve('../../node_modules/@resideo/auth0-configuration/deploy/pages/login.html');
 assert(fs.existsSync(indexHTML), `no login.html at ${indexHTML}`);
 
 const indexHtmlFile = fs.readFileSync(indexHTML, 'utf-8');
 
-const auth0Config = require(path.join(cwd, 'auth0.config.json'));
-
-export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOptions): Runner {
+export function createAuth0Simulator({
+  port,
+  appUrl,
+  oauth,
+  domain = 'localhost',
+  protocol = 'https',
+}: Auth0SimulatorOptions): Runner {
+  const auth0Domain = `${domain}:${port}`;
+  const fullAuth0Domain = `${protocol}://${auth0Domain}`;
   return {
     run(scope: Task) {
       const bound = Deferred<HTTPServer>();
@@ -64,18 +65,32 @@ export function createAuth0Simulator({ port, appUrl, oauth }: Auth0SimulatorOpti
         });
 
         app.use(json());
+        app.use(urlencoded({ extended: true }));
 
         app.get('/heartbeat', (_, res) => res.status(200).json({ ok: true }));
 
-        addAuth0Routes({ port, appUrl, oauth })(app);
+        addAuth0Routes({ auth0Domain, oauth })(app);
 
-        app.get('/login', (_, res) => {
-          const config = Buffer.from(JSON.stringify(createAuth0Config()), 'utf8').toString('base64');
+        app.get('/login', (req, res) => {
+          const config = createAuth0Config({
+            auth0Domain,
+            fullAuth0Domain,
+            ...req.query,
+            client_id: oauth.clientID,
+            scope: oauth.scope,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          } as any);
 
-          const configuredHtml = indexHtmlFile.replace(/\@\@config\@\@/g, config);
+          const raw = Buffer.from(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            JSON.stringify(config),
+            'utf8',
+          ).toString('base64');
+
+          const configuredHtml = indexHtmlFile.replace(/\@\@config\@\@/g, raw);
 
           res.set('Content-Type', 'text/html');
-          
+
           res.status(200).send(Buffer.from(configuredHtml));
         });
 

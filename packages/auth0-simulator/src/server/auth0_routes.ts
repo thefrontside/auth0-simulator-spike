@@ -18,14 +18,10 @@ const nonceMap: Record<
 > = {};
 
 export const addAuth0Routes = ({
-  protocol = 'https',
-  domain = 'localhost',
-  port,
-  appUrl,
+  auth0Domain,
   oauth,
-}: Auth0SimulatorOptions) => (app: Express): void => {
-  const address = `${protocol}://${domain}:${port}`;
-  const jwksMock = createJWKSMock(address);
+}: Pick<Auth0SimulatorOptions, 'oauth'> & { auth0Domain: string }) => (app: Express): void => {
+  const jwksMock = createJWKSMock(auth0Domain);
 
   app.get('/authorize', (req, res) => {
     const {
@@ -37,6 +33,8 @@ export const addAuth0Routes = ({
       nonce,
       response_mode,
     } = req.query as Auth0QueryParams;
+
+    console.dir({ q: req.query });
 
     const required = { client_id, scope, redirect_uri } as const;
 
@@ -73,23 +71,24 @@ export const addAuth0Routes = ({
   });
 
   app.post('/usernamepassword/login', (req: Request, res: Response) => {
-    const { code, state } = req.query as { code: string; state: string };
-
     res.set('Content-Type', 'text/html');
-    return res.status(200).send(userNamePasswordForm());
+
+    return res.status(200).send(userNamePasswordForm(req.body));
   });
 
-  app.post('/login/callback', (_, res) => {
-    
-  })
+  app.post('/login/callback', (req, res) => {
+    const wctx = JSON.parse(req.body.wctx);
 
-  app.post('/co/authenticate', function (_, res) {
-    return res.status(200).json({
-      login_ticket: 'blah',
-    });
+    console.dir({ wctx });
+    const { redirect_uri, state, nonce } = wctx;
+
+    const appUrl = `${redirect_uri}?code=${state}&state=${state}?nonce=${nonce}`;
+
+    return res.status(302).redirect(appUrl);
   });
 
   app.post('/oauth/token', function (req, res) {
+    console.dir({ nonceMap, b: req.body });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
     const alg = 'RS256';
@@ -107,7 +106,7 @@ export const addAuth0Routes = ({
     const idToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: address,
+      iss: auth0Domain,
       exp: expires,
       iat: issued,
       mail: 'bob@gmail.com',
@@ -119,7 +118,7 @@ export const addAuth0Routes = ({
     const accessToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: address,
+      iss: auth0Domain,
       exp: expires,
       iat: issued,
       aud: client_id,
@@ -133,5 +132,4 @@ export const addAuth0Routes = ({
       token_type: 'Bearer',
     });
   });
-
 };

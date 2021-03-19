@@ -9,6 +9,7 @@ main(function* (scope) {
     port: serverPort,
     appUrl: 'http://localhost:3000',
     oauth: {
+      clientID: 'x27JIDVbRAVgDCnItaJjJBIwhk8hWtPC',
       scope: 'openid profile email',
     },
   }).run(scope);
