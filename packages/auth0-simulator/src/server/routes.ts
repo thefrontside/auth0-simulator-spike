@@ -16,9 +16,13 @@ const nonceMap: Record<
   }
 > = {};
 
-export const addRoutes = ({ protocol = 'https', domain = 'localhost', port, appUrl, oauth }: Auth0SimulatorOptions) => (
-  app: Express,
-): void => {
+export const addAuth0Routes = ({
+  protocol = 'https',
+  domain = 'localhost',
+  port,
+  appUrl,
+  oauth,
+}: Auth0SimulatorOptions) => (app: Express): void => {
   const address = `${protocol}://${domain}:${port}`;
   const jwksMock = createJWKSMock(address);
 
@@ -72,7 +76,7 @@ export const addRoutes = ({ protocol = 'https', domain = 'localhost', port, appU
     return res.status(302).redirect(`${appUrl}?code=${code}&state=${state}`);
   });
 
-  app.post('/co/authenticate', function (req, res) {
+  app.post('/co/authenticate', function (_, res) {
     return res.status(200).json({
       login_ticket: 'blah',
     });
@@ -123,5 +127,4 @@ export const addRoutes = ({ protocol = 'https', domain = 'localhost', port, appU
     });
   });
 
-  app.get('/heartbeat', (_, res) => res.status(200).json({ ok: true }));
 };
