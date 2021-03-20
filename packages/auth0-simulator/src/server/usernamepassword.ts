@@ -3,6 +3,10 @@ import { encode } from 'html-entities';
 
 export type UserNamePasswordForm = {
   auth0Domain?: string;
+  audience?: string;
+  connection?: string;
+  response_type?: string;
+  tenant?: string;
 } & Partial<Auth0QueryParams>;
 
 export const userNamePasswordForm = ({
@@ -10,23 +14,26 @@ export const userNamePasswordForm = ({
   redirect_uri,
   state,
   nonce,
+  client_id,
+  scope,
+  audience,
+  connection,
+  response_type,
+  tenant,
 }: UserNamePasswordForm = {}): string => {
   const wctx = encode(
     JSON.stringify({
       strategy: 'auth0',
-      auth0Client: 'eyJuYW1lIjoiYXV0aDAuanMtdWxwIiwidmVyc2lvbiI6IjkuMTMuMiJ9',
-      tenant: 'resideo',
-      connection: 'Username-Password-Authentication',
-      client_id: 'x27JIDVbRAVgDCnItaJjJBIwhk8hWtPC',
-      response_type: 'code',
-      scope: 'openid profile email offline_access',
+      tenant,
+      connection,
+      client_id,
+      response_type,
+      scope,
       redirect_uri,
       state,
       nonce,
-      sid: 'nsHvSCIXOcFIFH5B2G7UuADX5PNTxrdO',
-      audience: 'https://resideo.auth0.com/api/v2/',
-      realm: 'Username-Password-Authentication',
-      session_user: '605490b48f132500685c3b9d',
+      audience,
+      realm: connection,
     }),
   );
 

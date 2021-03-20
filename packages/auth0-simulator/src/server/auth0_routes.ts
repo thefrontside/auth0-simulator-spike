@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+import { Express, urlencoded } from 'express';
 import { Request, Response } from 'express';
 import { webMessage } from './webMessage';
 import { Auth0QueryParams, Auth0SimulatorOptions } from './types';
@@ -6,6 +6,7 @@ import createJWKSMock from '../jwt/create-jwt-mocks';
 import { expiresAt } from '../utils/date';
 import { redirect } from './redirect';
 import { userNamePasswordForm } from './usernamepassword';
+import { decode, encode } from 'base64-url';
 
 // HACK: horrible spike code temp store.
 const nonceMap: Record<
@@ -20,8 +21,9 @@ const nonceMap: Record<
 export const addAuth0Routes = ({
   auth0Domain,
   oauth,
-}: Pick<Auth0SimulatorOptions, 'oauth'> & { auth0Domain: string }) => (app: Express): void => {
-  const jwksMock = createJWKSMock(auth0Domain);
+  fullAuth0Domain
+}: Pick<Auth0SimulatorOptions, 'oauth'> & { auth0Domain: string, fullAuth0Domain: string }) => (app: Express): void => {
+  const jwksMock = createJWKSMock(`${fullAuth0Domain}/`,);
 
   app.get('/authorize', (req, res) => {
     const {
@@ -33,8 +35,6 @@ export const addAuth0Routes = ({
       nonce,
       response_mode,
     } = req.query as Auth0QueryParams;
-
-    console.dir({ q: req.query });
 
     const required = { client_id, scope, redirect_uri } as const;
 
@@ -53,7 +53,7 @@ export const addAuth0Routes = ({
         ? webMessage({ code: code_challenge, state, redirect_uri, nonce })
         : redirect({ state });
 
-    nonceMap[code_challenge] = {
+    nonceMap[state] = {
       code_challenge,
       redirect_uri,
       nonce,
@@ -76,26 +76,28 @@ export const addAuth0Routes = ({
     return res.status(200).send(userNamePasswordForm(req.body));
   });
 
-  app.post('/login/callback', (req, res) => {
+  app.post('/login/callback', urlencoded({extended: true}), (req, res) => {
     const wctx = JSON.parse(req.body.wctx);
 
-    console.dir({ wctx });
     const { redirect_uri, state, nonce } = wctx;
 
-    const appUrl = `${redirect_uri}?code=${state}&state=${state}?nonce=${nonce}`;
+    const encoded = encode(state);
+
+    const appUrl = `${redirect_uri}?code=${encoded}&state=${state}?nonce=${nonce}`;
 
     return res.status(302).redirect(appUrl);
   });
 
   app.post('/oauth/token', function (req, res) {
-    console.dir({ nonceMap, b: req.body });
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
     const alg = 'RS256';
 
     const issued = Date.now();
 
-    const { nonce } = nonceMap[code];
+    const decoded = decode(code);
+
+    const { nonce } = nonceMap[decoded];
 
     if (!nonce) {
       return res.status(400).send(`no nonce in store for ${code}`);
@@ -106,7 +108,7 @@ export const addAuth0Routes = ({
     const idToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: auth0Domain,
+      iss: `${fullAuth0Domain}/`,
       exp: expires,
       iat: issued,
       mail: 'bob@gmail.com',
@@ -118,7 +120,7 @@ export const addAuth0Routes = ({
     const accessToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: auth0Domain,
+      iss: `${fullAuth0Domain}/`,
       exp: expires,
       iat: issued,
       aud: client_id,

@@ -10,7 +10,7 @@ main(function* (scope) {
     appUrl: 'http://localhost:3000',
     oauth: {
       clientID: 'x27JIDVbRAVgDCnItaJjJBIwhk8hWtPC',
-      scope: 'openid profile email',
+      scope: 'openid profile email offline_access',
     },
   }).run(scope);
 

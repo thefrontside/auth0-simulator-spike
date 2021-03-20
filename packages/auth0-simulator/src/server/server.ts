@@ -65,11 +65,10 @@ export function createAuth0Simulator({
         });
 
         app.use(json());
-        app.use(urlencoded({ extended: true }));
 
         app.get('/heartbeat', (_, res) => res.status(200).json({ ok: true }));
 
-        addAuth0Routes({ auth0Domain, oauth })(app);
+        addAuth0Routes({ auth0Domain, fullAuth0Domain, oauth })(app);
 
         app.get('/login', (req, res) => {
           const config = createAuth0Config({
