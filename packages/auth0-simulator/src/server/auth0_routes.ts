@@ -50,7 +50,7 @@ export const addAuth0Routes = ({
 
     const raw =
       response_mode === 'web_message'
-        ? webMessage({ code: code_challenge, state, redirect_uri, nonce })
+        ? webMessage({ code: encode(state), state, redirect_uri, nonce })
         : redirect({ state });
 
     nonceMap[state] = {
@@ -93,9 +93,10 @@ export const addAuth0Routes = ({
     const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
     const alg = 'RS256';
 
+
     const issued = Date.now();
 
-    const decoded = decode(code);
+    const decoded = decode(code).replace(' ', '+');
 
     const { nonce } = nonceMap[decoded];
 
