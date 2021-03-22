@@ -29,6 +29,7 @@ export interface Auth0SimulatorOptions {
   oauth: {
     clientID: string;
     scope: string;
+    audience: string;
   };
 }
 

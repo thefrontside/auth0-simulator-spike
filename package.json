@@ -21,10 +21,9 @@
     "clean:tsbuild": "find .  \\( -name node_modules -o -name dir2 -o -path name \\) -prune -false -o -name 'dist'  -exec rm -rf {} + -o -name '*.tsbuildinfo'  -exec rm -rf {} +",
     "generate": "yarn workspaces run generate",
     "test": "CI=true yarn workspaces run test",
-    "start": "yarn build && yarn --cwd packages/example start",
+    "start": "yarn build && yarn workspace auth0-simulator start",
     "lint": "eslint 'packages/**/*.{ts,tsx,js}' -c ./.eslintrc.json --ignore-path ./.eslintignore --fix",
     "lint:js": "eslint --ext .js . -c ./packages/devtools/.eslintrc.json --ignore-path ./.eslintignore --fix",
-    "quick-start": "yarn install && yarn workspace auth0-simulator run watch",
     "watch": "PORT=4400 yarn build:tsc && yarn tsc -b ./tsconfig.monorepo.json --watch"
   },
   "volta": {

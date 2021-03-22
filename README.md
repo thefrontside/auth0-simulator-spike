@@ -1,22 +1,49 @@
-# Simulation Spike
+# auth0-simulator
 
-Monorepo with the main spike code in the [auth0-simulator](./packages/auth0-simulator) package.
+This package provides an https server that mimics the requests and responses of a real auth0 server.
 
-## Quick start
+## CONFIG
 
-```bash
-# starts code watcher, control api and simulators
+Configuration is read from a [.env file](https://github.com/motdotla/dotenv).
 
-yarn quick-start
+An example configuration is below:
+
+```
+AUTH0_AUDIENCE=https://resideo.com
+AUTH0_CLIENT_ID=x27JIDVbRAVgDCnItaJjJBIwhk8hWtPC
+AUTH0_SCOPE=openid profile email offline_access
+GATEWAY_URL=https://localhost:4000/graphql
+GRAPHQL_SCHEMA_PACKAGE=zeus-gateway-staged
 ```
 
 ## SSL
 
-For auth0 integration, localhost needs to run under ssl, I used [mkcert](https://github.com/FiloSottile/mkcert)......and it just worked.
+The auth0 simulator needed to run over https.  [mkcert](https://github.com/FiloSottile/mkcert) makes this pretty easy:
 
 ```bash
 brew install mkcert
-brew install nss # for firefox
+brew install nss  # for firefox
 
-mkcert -install -cert-file localhost -key-file localhost
+cd ./packages/auth0-simulator/certs
+mkcert -install   # Created a new local CA at the location returned from `mkcert -CAROOT`
+mkcert localhost  # Using the local CA at CAROOT, create a new certificate valid for the following names
+```
+
+### re-install
+
+If for whatever reason, you need to regenerate your certs then
+
+```bash
+cd ./certs
+mkcert -uninstall localhost
+# it might be necessary to uninstall the root certs
+# mkcert -uninstall 
+# rm -r "$(mkcert -CAROOT)/rootCA*.*"
+# mkcert -install
+mkcert localhost
+```
+
+## quick start
+```bash
+yarn start
 ```

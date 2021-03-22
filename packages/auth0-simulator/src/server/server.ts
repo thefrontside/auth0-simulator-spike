@@ -70,6 +70,7 @@ export function createAuth0Simulator({
 
         addAuth0Routes({ auth0Domain, fullAuth0Domain, oauth })(app);
 
+        // TODO: add audience
         app.get('/login', (req, res) => {
           const config = createAuth0Config({
             auth0Domain,
@@ -81,7 +82,6 @@ export function createAuth0Simulator({
           } as any);
 
           const raw = Buffer.from(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             JSON.stringify(config),
             'utf8',
           ).toString('base64');

@@ -16,3 +16,4 @@ __generated__
 *.pem
 auth0_config.ts
 tmp
+.env*
