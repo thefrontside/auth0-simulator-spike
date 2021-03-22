@@ -8,14 +8,15 @@ import { redirect } from './redirect';
 import { userNamePasswordForm } from './usernamepassword';
 import { decode, encode } from 'base64-url';
 import { ensureTrailingSlash } from '../utils/url';
+import querystring from 'querystring';
 
-// HACK: horrible spike code temp store.
-const nonceMap: Record<
+const stateMap: Record<
   string,
   {
     code_challenge: string;
     redirect_uri: string;
     nonce: string;
+    username?: string
   }
 > = {};
 
@@ -53,7 +54,7 @@ export const addAuth0Routes = ({
         ? webMessage({ code: encode(state), state, redirect_uri, nonce })
         : redirect({ state });
 
-    nonceMap[state] = {
+    stateMap[state] = {
       code_challenge,
       redirect_uri,
       nonce,
@@ -63,7 +64,7 @@ export const addAuth0Routes = ({
       return res.status(200).send(Buffer.from(raw));
     }
 
-    return res.status(302).redirect(`/login?state=${state}&redirect_uri=${redirect_uri}`);
+    return res.status(302).redirect(`/login?${querystring.stringify({state, redirect_uri})}`);
   });
 
   app.get('/u/login', (_, res) => {
@@ -72,6 +73,10 @@ export const addAuth0Routes = ({
 
   app.post('/usernamepassword/login', (req: Request, res: Response) => {
     res.set('Content-Type', 'text/html');
+
+    const { state, username } = req.body;
+
+    stateMap[state].username = username;
 
     return res.status(200).send(userNamePasswordForm(req.body));
   });
@@ -83,7 +88,9 @@ export const addAuth0Routes = ({
 
     const encoded = encode(state);
 
-    const appUrl = `${redirect_uri}?code=${encoded}&state=${state}?nonce=${nonce}`;
+    const qs = querystring.stringify({ code: encoded, state, nonce });
+
+    const appUrl = `${redirect_uri}?${qs}`;
 
     return res.status(302).redirect(appUrl);
   });
@@ -96,7 +103,7 @@ export const addAuth0Routes = ({
 
     const decoded = decode(code).replace(' ', '+');
 
-    const { nonce } = nonceMap[decoded];
+    const { nonce, username } = stateMap[decoded];
 
     if (!nonce) {
       return res.status(400).send(`no nonce in store for ${code}`);
@@ -110,7 +117,7 @@ export const addAuth0Routes = ({
       iss: ensureTrailingSlash(fullAuth0Domain),
       exp: expires,
       iat: issued,
-      mail: 'bob@gmail.com',
+      mail: username,
       aud: client_id,
       sub: 'subject field',
       nonce,
