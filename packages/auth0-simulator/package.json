@@ -8,10 +8,10 @@
   "scripts": {
     "clean": "rimraf tsconfig.tsbuildinfo dist",
     "build": "tsc -p ./tsconfig.json",
-    "server": "PORT=4400 NODE_ENV=production node dist/server/server.js",
+    "server": "NODE_ENV=production node dist/server/server.js",
     "start": "yarn watch",
     "test": "yarn jest --useStderr",
-    "watch": "PORT=4400 NODE_ENV=development yarn ts-node -P ./watch-tsconfig.json ./watch.ts"
+    "watch": "NODE_ENV=development yarn ts-node -P ./watch-tsconfig.json ./watch.ts"
   },
   "devDependencies": {
     "@bigtest/suite": "^0.11.3",
