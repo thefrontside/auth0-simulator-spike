@@ -1,3 +1,4 @@
+import { ensureTrailingSlash } from '../utils/url';
 import { Auth0Config } from './types';
 
 export const createAuth0Config = ({
@@ -7,8 +8,7 @@ export const createAuth0Config = ({
   state,
   client_id,
   scope,
-}: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-Auth0Config): any => {
+}:Auth0Config) => {
   return {
     icon: 'https://www.resideo.com/Areas/Resideo/img/resideo-block-logo-white.svg',
     assetsUrl: '',
@@ -44,7 +44,7 @@ Auth0Config): any => {
     isThirdPartyClient: false,
     authorizationServer: {
       url: fullAuth0Domain,
-      issuer: `${fullAuth0Domain}/`,
+      issuer: ensureTrailingSlash(fullAuth0Domain),
     },
     colors: {
       page_background: '#ededed',

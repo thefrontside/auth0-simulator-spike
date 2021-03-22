@@ -5,3 +5,5 @@ const port = process.env.PORT || 3000;
 export const fullUrl = (...path: string[]): string =>
   // TODO: get real protocol etc.
   `https://localhost:${port}${urlJoin(...path)}`;
+
+export const ensureTrailingSlash = (url: string) => url.endsWith('/') ? url : `${url}/`

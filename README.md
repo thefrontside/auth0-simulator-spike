@@ -39,7 +39,7 @@ cd ./certs
 mkcert -uninstall localhost
 # it might be necessary to uninstall the root certs
 # mkcert -uninstall 
-# rm -r "$(mkcert -CAROOT)/rootCA*.*"
+# rm -rf "$(mkcert -CAROOT)/*"
 # mkcert -install
 mkcert localhost
 ```

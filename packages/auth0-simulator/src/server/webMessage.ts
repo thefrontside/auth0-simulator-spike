@@ -61,8 +61,6 @@ export const webMessage = ({
                 type: "relay_request"
               }, targetOrigin);
             } else {
-              console.log(authorizationResponse);
-              console.log(targetOrigin);
               mainWin.postMessage(authorizationResponse, targetOrigin);
             }
           })(this, this.document);

@@ -1698,12 +1698,12 @@
     whatwg-fetch "^3.5.0"
     write-file-webpack-plugin "^4.5.1"
 
-"@cutting/eslint-config@^4.19.0":
-  version "4.19.0"
-  resolved "https://registry.npmjs.org/@cutting/eslint-config/-/eslint-config-4.19.0.tgz#b4844b0be405faa0e691c695ee0253e928abfd11"
-  integrity sha512-76TWAryOYOBjo33q9Z9qKkcN+Xz+OHJmkVIZuRxFc+3JR9dke66Fez3iQPK2w4p53BeOhaeQrUnCzqUc8N4t2g==
+"@cutting/eslint-config@^4.20.1":
+  version "4.20.1"
+  resolved "https://registry.npmjs.org/@cutting/eslint-config/-/eslint-config-4.20.1.tgz#62e28412b97cdd24a58c94a69d1c6cdb8b81b5fb"
+  integrity sha512-TXZ1NYbkRNxHkmR9/IV9to1R+S8xknwWkd7uSaMmSt9QBcoR33DUFd5aqnJD3fQIGC9TyW9JEREQeIlEa5SNNQ==
   dependencies:
-    "@cutting/useful-types" "4.19.0"
+    "@cutting/useful-types" "4.20.1"
     "@types/webpack-env" "^1.16.0"
     "@typescript-eslint/eslint-plugin" "^4.10.0"
     "@typescript-eslint/parser" "^4.10.0"
@@ -1742,7 +1742,14 @@
     marked "^1.2.7"
     rollup "^2.35.1"
 
-"@cutting/useful-types@4.19.0", "@cutting/useful-types@^4.19.0":
+"@cutting/useful-types@4.20.1":
+  version "4.20.1"
+  resolved "https://registry.npmjs.org/@cutting/useful-types/-/useful-types-4.20.1.tgz#5e2189fafacd5601719ba8ae6b5288e5dd7dcf13"
+  integrity sha512-hi+V5zo7n+cayog5wWG/UrU8JUQYDqs4iRCCcrim6DYWbdRcY/A4GlSdPAt4hMMYUPQ2tSyK8GvZ3qGJdQWHyA==
+  dependencies:
+    "@cutting/util" "4.20.1"
+
+"@cutting/useful-types@^4.19.0":
   version "4.19.0"
   resolved "https://registry.npmjs.org/@cutting/useful-types/-/useful-types-4.19.0.tgz#6d02cf1ab763718769340e523260ea2965564c69"
   integrity sha512-C1PdWxUCaSBhEv43nMgeeFzekNJoHy9+NPG3bbFoPQbclDqBVHlWiCxica4Y41zw6WAEV2+I8Oe3mFCoGOKnjg==
@@ -1755,6 +1762,14 @@
   integrity sha512-gB98lMSu9nsGvCsjKqioDK5NVBgT+MhnBbX6yQnTo4yyslgIylMDqPVtrykg0Rv3ysnsIFo4vulU7qHpuT6Ljw==
   dependencies:
     "@cutting/util" "4.19.0"
+    react "^17.0.1"
+
+"@cutting/util@4.20.1":
+  version "4.20.1"
+  resolved "https://registry.npmjs.org/@cutting/util/-/util-4.20.1.tgz#94dfa224a481992fc13e5112f19ab85ecd6087a6"
+  integrity sha512-bUKYhKgY2p9AkvF6qQKEMzl56/fFQeF3UKqRtKP5L9bXhnKOJkMC1PQu9HjvojMPTPexOge6ipREU+5c7hmLHw==
+  dependencies:
+    "@cutting/util" "4.20.1"
     react "^17.0.1"
 
 "@definitelytyped/typescript-versions@^0.0.40":
@@ -3388,7 +3403,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@^2.10.0", "@typescript-eslint/eslint-plugin@^4.10.0", "@typescript-eslint/eslint-plugin@^4.12.0":
+"@typescript-eslint/eslint-plugin@^2.10.0", "@typescript-eslint/eslint-plugin@^4.10.0", "@typescript-eslint/eslint-plugin@^4.12.0", "@typescript-eslint/eslint-plugin@^4.18.0":
   version "4.18.0"
   resolved "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-4.18.0.tgz#50fbce93211b5b690895d20ebec6fe8db48af1f6"
   integrity sha512-Lzkc/2+7EoH7+NjIWLS2lVuKKqbEmJhtXe3rmfA8cyiKnZm3IfLf51irnBcmow8Q/AptVV0XBZmBJKuUJTe6cQ==

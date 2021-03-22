@@ -13,7 +13,6 @@ const queryClient = new QueryClient();
 
 const Auth0: FC = ({ children }) => {
   const onRedirectCallback = (appState: { returnTo?: string }) => {
-    console.dir({ appState });
     history.push(appState?.returnTo || window.location.pathname);
   };
 

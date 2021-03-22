@@ -7,6 +7,7 @@ import { expiresAt } from '../utils/date';
 import { redirect } from './redirect';
 import { userNamePasswordForm } from './usernamepassword';
 import { decode, encode } from 'base64-url';
+import { ensureTrailingSlash } from '../utils/url';
 
 // HACK: horrible spike code temp store.
 const nonceMap: Record<
@@ -19,11 +20,10 @@ const nonceMap: Record<
 > = {};
 
 export const addAuth0Routes = ({
-  auth0Domain,
   oauth,
-  fullAuth0Domain
-}: Pick<Auth0SimulatorOptions, 'oauth'> & { auth0Domain: string, fullAuth0Domain: string }) => (app: Express): void => {
-  const jwksMock = createJWKSMock(`${fullAuth0Domain}/`,);
+  fullAuth0Domain,
+}: Pick<Auth0SimulatorOptions, 'oauth'> & { auth0Domain: string; fullAuth0Domain: string }) => (app: Express): void => {
+  const jwksMock = createJWKSMock(ensureTrailingSlash(fullAuth0Domain));
 
   app.get('/authorize', (req, res) => {
     const {
@@ -76,7 +76,7 @@ export const addAuth0Routes = ({
     return res.status(200).send(userNamePasswordForm(req.body));
   });
 
-  app.post('/login/callback', urlencoded({extended: true}), (req, res) => {
+  app.post('/login/callback', urlencoded({ extended: true }), (req, res) => {
     const wctx = JSON.parse(req.body.wctx);
 
     const { redirect_uri, state, nonce } = wctx;
@@ -108,7 +108,7 @@ export const addAuth0Routes = ({
     const idToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: `${fullAuth0Domain}/`,
+      iss: ensureTrailingSlash(fullAuth0Domain),
       exp: expires,
       iat: issued,
       mail: 'bob@gmail.com',
@@ -120,7 +120,7 @@ export const addAuth0Routes = ({
     const accessToken = jwksMock.token({
       alg,
       typ: 'JWT',
-      iss: `${fullAuth0Domain}/`,
+      iss: ensureTrailingSlash(fullAuth0Domain),
       exp: expires,
       iat: issued,
       aud: client_id,

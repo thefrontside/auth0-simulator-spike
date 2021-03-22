@@ -81,10 +81,7 @@ export function createAuth0Simulator({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any);
 
-          const raw = Buffer.from(
-            JSON.stringify(config),
-            'utf8',
-          ).toString('base64');
+          const raw = Buffer.from(JSON.stringify(config), 'utf8').toString('base64');
 
           const configuredHtml = indexHtmlFile.replace(/\@\@config\@\@/g, raw);
 
