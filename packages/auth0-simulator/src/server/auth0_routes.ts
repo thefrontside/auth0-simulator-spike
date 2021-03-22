@@ -89,10 +89,8 @@ export const addAuth0Routes = ({
   });
 
   app.post('/oauth/token', function (req, res) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { client_id, code_verifier, code, grant_type, redirect_uri } = req.body;
+    const { client_id, code } = req.body;
     const alg = 'RS256';
-
 
     const issued = Date.now();
 
